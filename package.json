@@ -11,12 +11,13 @@
     "deploy": "sls deploy --stage",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
-    "start": "NODE_ENV=development serverless offline start",
-    "test": "NODE_ENV=development LOG_LEVEL=error jest --coverage",
-    "test:watch": "NODE_ENV=development LOG_LEVEL=error jest --watch"
+    "start": "cross-env NODE_ENV=development serverless offline start",
+    "test": "cross-env NODE_ENV=development LOG_LEVEL=error jest --coverage",
+    "test:watch": "cross-env NODE_ENV=development LOG_LEVEL=error jest --watch"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.1",
+    "cross-env": "^7.0.3",
     "eslint": "^4.7.2",
     "eslint-plugin-prettier": "^2.1.2",
     "jest": "22.4.3",
