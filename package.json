@@ -5,7 +5,7 @@
   "private": true,
   "license": "UNLICENSED",
   "engines": {
-    "node": "16.x.x"
+    "node": "14.19.1"
   },
   "scripts": {
     "compile": "rimraf build && tsc -p .",

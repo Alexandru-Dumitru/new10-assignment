@@ -2,7 +2,7 @@ service: nodejs-assignment
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs14.19
   region: eu-west-1
   environment:
     APP_NAME: ${self:service}
