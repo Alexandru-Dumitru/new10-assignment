@@ -5,9 +5,10 @@
   "private": true,
   "license": "UNLICENSED",
   "engines": {
-    "node": "8.x.x"
+    "node": "16.x.x"
   },
   "scripts": {
+    "compile": "rimraf build && tsc -p .",
     "deploy": "sls deploy --stage",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
@@ -23,10 +24,12 @@
     "jest": "22.4.3",
     "prettier": "^1.7.2",
     "prettier-eslint": "^8.2.0",
+    "rimraf": "^3.0.2",
     "serverless": "^1.27.3",
     "serverless-dynamodb-local": "^0.2.30",
     "serverless-offline": "^3.23.1",
-    "serverless-pseudo-parameters": "^1.4.2"
+    "serverless-pseudo-parameters": "^1.4.2",
+    "typescript": "^4.6.3"
   },
   "dependencies": {
     "dynamodb": "^1.1.2",
