@@ -1,5 +1,17 @@
 service: nodejs-assignment
 
+custom:
+  dynamodb:
+  # If you only want to use DynamoDB Local in some stages, declare them here
+    stages:
+      - dev
+    start:
+      docker: true
+      port: 8000
+      inMemory: true
+      migrate: true
+      seed: true
+      convertEmptyValues: true
 provider:
   name: aws
   runtime: nodejs14.19
@@ -8,11 +20,15 @@ provider:
     APP_NAME: ${self:service}
     AWS_ACCESS_KEY_ID: id_key
     AWS_SECRET_ACCESS_KEY: access_key
+    LOANS_TABLE_NAME: loansTable
 
 package:
   exclude:
     - .env
     - coverage/**
+    - .dynamodb
+  include:
+    - build/**
 
 plugins:
   - serverless-pseudo-parameters
@@ -20,9 +36,9 @@ plugins:
   - serverless-offline
 
 functions:
-  function1:
-    name: function1
-    handler: src/app1/functions.function1
+  createLoan:
+    name: createLoan
+    handler: build/app1/createLoan.handler
     events:
       - http:
           path: /create/{amount}
@@ -51,3 +67,19 @@ functions:
       - http:
           path: /disburse/{id}
           method: get
+
+resources:
+  Resources:
+    loansTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: loansTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
