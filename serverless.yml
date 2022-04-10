@@ -1,6 +1,7 @@
 service: nodejs-assignment
 
 custom:
+  defaultStage: dev
   dynamodb:
   # If you only want to use DynamoDB Local in some stages, declare them here
     stages:
@@ -14,13 +15,16 @@ custom:
       convertEmptyValues: true
 provider:
   name: aws
-  runtime: nodejs14.19
+  runtime: nodejs14.x
   region: eu-west-1
+  stage: ${opt:stage, self:custom.defaultStage}
   environment:
     APP_NAME: ${self:service}
     AWS_ACCESS_KEY_ID: id_key
     AWS_SECRET_ACCESS_KEY: access_key
     LOANS_TABLE_NAME: loansTable
+    DYNAMODB_REGION: localhost
+    DYNAMODB_ENDPOINT: http://localhost:8000
 
 package:
   exclude:
@@ -36,29 +40,35 @@ plugins:
   - serverless-offline
 
 functions:
-  createLoan:
-    name: createLoan
-    handler: build/app1/createLoan.handler
+  createLoans:
+    handler: build/loansService/functions/createLoans/index.handler
+    package:
+      include:
+        - build/loansService/functions/createLoans/*
     events:
       - http:
-          path: /create/{amount}
-          method: get
+          method: post
+          path: /loans
 
-  function2:
-    name: function2
-    handler: src/app1/functions.function2
+  deleteLoans:
+    handler: build/loansService/functions/deleteLoans/index.handler
+    package:
+      include:
+        - build/loansService/functions/deleteLoans/*
     events:
       - http:
-          path: /delete/{id}
-          method: get
+          method: delete
+          path: /loans/{id}
 
-  function3:
-    name: function3
-    handler: src/app1/functions.function3
+  getLoans:
+    handler: build/loansService/functions/getLoans/index.handler
+    package:
+      include:
+        - build/loansService/functions/getLoans/*
     events:
       - http:
-          path: /all
           method: get
+          path: /loans
 
   function4:
     name: function4
