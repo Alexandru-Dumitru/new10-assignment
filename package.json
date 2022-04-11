@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.1111.0",
+    "axios": "^0.26.1",
     "dynamodb": "^1.1.2",
     "joi": "^17.6.0",
     "uuid": "^8.3.2"

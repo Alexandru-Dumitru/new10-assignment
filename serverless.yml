@@ -25,6 +25,7 @@ provider:
     LOANS_TABLE_NAME: loansTable
     DYNAMODB_REGION: localhost
     DYNAMODB_ENDPOINT: http://localhost:8000
+    DISBURSEMENTS_SERVICE_URL: http://localhost:3000/dev
 
 package:
   exclude:
@@ -70,13 +71,28 @@ functions:
           method: get
           path: /loans
 
-  function4:
-    name: function4
-    handler: src/app1/functions.function4
+  updateLoans:
+    name: updateLoans
+    handler: build/loansService/functions/updateLoans/index.handler
+    package:
+      include:
+        - build/loansService/functions/updateLoans/*
     events:
       - http:
-          path: /disburse/{id}
-          method: get
+          path: /loans/{id}
+          method: patch
+  
+  disburseLoans:
+    name: updateLoans
+    handler: build/disbursementsService/functions/disburseLoans/index.handler
+    package:
+      include:
+        - build/disbursementsService/functions/disburseLoans/*
+    events:
+      - http:
+          path: /loans/{id}/status
+          method: put
+
 
 resources:
   Resources:
