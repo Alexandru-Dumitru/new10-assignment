@@ -1,11 +1,14 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
 import { DynamoDB } from 'aws-sdk'
-import {} from 'dynamodb'
 // import Joi from 'joi'
 
 const LOANS_TABLE = process.env.LOANS_TABLE_NAME
 const DYNAMODB_REGION = process.env.DYNAMODB_REGION
 const DYNAMODB_ENDPOINT = process.env.DYNAMODB_ENDPOINT
+
+if (!LOANS_TABLE || !DYNAMODB_REGION || !DYNAMODB_ENDPOINT) {
+  throw new Error('One or more environment variables are not defined')
+}
 
 const dynamoDb = new DynamoDB({
   region: DYNAMODB_REGION,
@@ -14,14 +17,12 @@ const dynamoDb = new DynamoDB({
 
 export const handler: APIGatewayProxyHandler = async () => {
   try {
-    //TODO param and env var validation here!!
-
     const data = await dynamoDb
       .scan({
-        TableName: LOANS_TABLE!,
+        TableName: LOANS_TABLE,
       })
       .promise()
-    //TODO pagination => Check lastEvaluatedKey
+
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -29,10 +30,9 @@ export const handler: APIGatewayProxyHandler = async () => {
       }),
     }
   } catch (e) {
-    //TODO validate something here ?!?
     return {
       statusCode: 500,
-      body: JSON.stringify((e as any).stack),
+      body: e instanceof Error ? JSON.stringify(e.stack) : JSON.stringify(e),
     }
   }
 }

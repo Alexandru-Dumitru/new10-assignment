@@ -1,12 +1,15 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
 import { DynamoDB } from 'aws-sdk'
-import {} from 'dynamodb'
 // import Joi from 'joi'
 import { LoanStatus } from '../../entities/loan.entity'
 
 const LOANS_TABLE = process.env.LOANS_TABLE_NAME
 const DYNAMODB_REGION = process.env.DYNAMODB_REGION
 const DYNAMODB_ENDPOINT = process.env.DYNAMODB_ENDPOINT
+
+if (!LOANS_TABLE || !DYNAMODB_REGION || !DYNAMODB_ENDPOINT) {
+  throw new Error('One or more environment variables are not defined')
+}
 
 const dynamoDb = new DynamoDB({
   region: DYNAMODB_REGION,
@@ -36,7 +39,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     const result = await dynamoDb
       .updateItem({
-        TableName: LOANS_TABLE!,
+        TableName: LOANS_TABLE,
         Key: {
           id: {
             S: id,

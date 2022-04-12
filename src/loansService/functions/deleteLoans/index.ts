@@ -1,9 +1,14 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
 import { DynamoDB } from 'aws-sdk'
-// import Joi from 'joi'
+import HttpErrors from 'http-errors'
+
 const LOANS_TABLE = process.env.LOANS_TABLE_NAME
 const DYNAMODB_REGION = process.env.DYNAMODB_REGION
 const DYNAMODB_ENDPOINT = process.env.DYNAMODB_ENDPOINT
+
+if (!LOANS_TABLE || !DYNAMODB_REGION || !DYNAMODB_ENDPOINT) {
+  throw new Error('One or more environment variables are not defined')
+}
 
 const dynamoDb = new DynamoDB({
   region: DYNAMODB_REGION,
@@ -15,7 +20,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const id = event.pathParameters?.id
     const result = await dynamoDb
       .deleteItem({
-        TableName: LOANS_TABLE!,
+        TableName: LOANS_TABLE,
         Key: {
           id: {
             S: id,
@@ -24,6 +29,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         ReturnValues: 'ALL_OLD',
       })
       .promise()
+
+    if (!result.Attributes) {
+      throw new HttpErrors.NotFound()
+    }
+
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -31,10 +41,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     }
   } catch (e) {
-    //TODO validate something here ?!?
+    if (HttpErrors.isHttpError(e)) {
+      return {
+        statusCode: e.statusCode,
+        body: e.message,
+      }
+    }
+
     return {
       statusCode: 500,
-      body: JSON.stringify((e as any).stack),
+      body: e instanceof Error ? JSON.stringify(e.stack) : JSON.stringify(e),
     }
   }
 }
