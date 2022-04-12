@@ -1,7 +1,9 @@
 import { APIGatewayProxyHandler } from 'aws-lambda'
 import { DynamoDB } from 'aws-sdk'
-// import Joi from 'joi'
+import Joi from 'joi'
+import { getValidEventBody } from '../../../utils/validation'
 import { LoanStatus } from '../../entities/loan.entity'
+import HttpErrors from 'http-errors'
 
 const LOANS_TABLE = process.env.LOANS_TABLE_NAME
 const DYNAMODB_REGION = process.env.DYNAMODB_REGION
@@ -16,19 +18,22 @@ const dynamoDb = new DynamoDB({
   endpoint: DYNAMODB_ENDPOINT,
 })
 
+const bodySchema = Joi.object({
+  status: Joi.string()
+    .required()
+    .insensitive()
+    .valid(LoanStatus.DISBURSED)
+    .messages({
+      'any.only':
+        'Invalid body parameter value: "status" must be one of ["DISBURSED"]',
+      'any.required': 'Missing required body parameter: "status',
+    }),
+})
+
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
-    //TODO param and env var validation here!!
-    //TODO move amount to body of the request!
     const id = event.pathParameters?.id
-    const status = event.body
-
-    if (!status) {
-      return {
-        statusCode: 400,
-        body: 'Body missing',
-      }
-    }
+    const { status } = getValidEventBody(event, bodySchema)
 
     if (status && status !== LoanStatus.DISBURSED) {
       return {
@@ -62,10 +67,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     }
   } catch (e) {
-    //TODO validate something here ?!?
+    if (HttpErrors.isHttpError(e)) {
+      return {
+        statusCode: e.statusCode,
+        body: e.message,
+      }
+    }
     return {
       statusCode: 500,
-      body: JSON.stringify((e as any).stack),
+      body: e instanceof Error ? JSON.stringify(e.stack) : JSON.stringify(e),
     }
   }
 }
