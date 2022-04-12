@@ -58,10 +58,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   try {
     const { amount, openkvkId } = getValidEventBody(event, bodySchema)
 
-    // get info about company
-    // use rechtspersoon-37118062-stichting-mr-racing-support as test id
-    //https://api.overheid.io/openkvk/rechtspersoon-37118062-stichting-mr-racing-support
-
     const { data: companyData } = await opekvkService.get(`/${openkvkId}`)
 
     if (!companyData.actief)
