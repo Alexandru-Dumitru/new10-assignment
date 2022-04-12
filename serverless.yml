@@ -26,6 +26,8 @@ provider:
     DYNAMODB_REGION: localhost
     DYNAMODB_ENDPOINT: http://localhost:8000
     DISBURSEMENTS_SERVICE_URL: http://localhost:3000/dev
+    OPENKVK_ENDPOINT: https://api.overheid.io/openkvk
+    OPENKVK_API_KEY: a4f22ea46f102c7ccf95b21b3d257f9b737a5224adc7560c0bbaa41f5eb730ef
 
 package:
   exclude:
